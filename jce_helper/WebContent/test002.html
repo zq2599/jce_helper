@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+<style>
+/*
+body{TEXT-ALIGN: center;}
+.center{ MARGIN-RIGHT: auto;
+MARGIN-LEFT: auto;
+vertical-align:middle;
+}
+*/
+.title{
+color : orange;
+text-align : left;
+}
+
+
+.deviceDesc{
+color : red;
+font-size:19px;
+text-align : left;
+}
+
+.request{
+color : blue;
+text-align : left;
+}
+
+.response{
+color : green;
+text-align : left;
+}
+
+.split_line{
+margin-top : 10px;
+}
+
+.split_msg{
+margin-top : 30px;
+}
+
+.space_class{
+padding-left : 10px;
+}
+
+.span_arrow { display:inline-block; *zoom:1; width:30px; height:30px; background-image:url(icon/expand.png); background-position:left center; background-repeat:no-repeat; overflow:hidden; vertical-align:middle;}
+
+</style>
+<!-- 引入 jQuery -->
+<script src="./js/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+	var TRUE = "true";
+	var FALSE = "false";
+	var PREFIX_DISP = "jceDisp";
+	var PREFIX_HIDE = "jceHide";
+	var PREFIX_COPY_REQUEST = "copyRequest";
+	var PREFIX_COPY_RESPONSE = "copyResponse";
+	var ARROW_CLOSE = "url(icon/close.png)";
+	var ARROW_EXPAND = "url(icon/expand.png)";
+	var STR_NEW_LINE = "<br>";
+	var STR_SPACE = "<span class=\"space_class\"/>";
+	var ATTR_HAS_DETAIL = "attr_has_detail";
+	var ATTR_DATA_ID = "attr_data_id";
+	//var url = "servlet/getreal?param1=eb73c47cd4261032bbcf80fba001bb0a";
+	//var url = "servlet/getreal?param1=";
+	var url = "readJceRecord?param1=";
+	var gDivId = 0;
+	
+	function getNetworkTypeDesc(type){
+		var rlt;
+		switch(type){
+		case '0':
+			rlt = "无网络";
+		break;
+		case '1':
+			rlt = "WIFI";
+		break;
+		case '2':
+			rlt = "CMNET";
+		break;
+		case '3':
+			rlt = "CMWAP";
+		break;
+		default:
+			rlt = "未知网络类型【" + type + "】";
+		break;
+		}
+		return rlt;		
+	}
+	
+	function put2Clip(meintext) {
+	    if (window.clipboardData){window.clipboardData.clearData();window.clipboardData.setData("Text", meintext);}
+		else {
+	        var flashcopier = 'flashcopier';
+	        if (!document.getElementById(flashcopier)) {
+	            var divholder = document.createElement('div');
+	            divholder.id = flashcopier;
+	            document.body.appendChild(divholder);
+	        }
+	        document.getElementById(flashcopier).innerHTML = '';
+	        var divinfo = '<embed src="/js/_clipboard.swf" FlashVars="clipboard=' + encodeURIComponent(meintext) + '" width="0" height="0" type="application/x-shockwave-flash"></embed>';
+	        document.getElementById(flashcopier).innerHTML = divinfo;
+	    }
+	    alert("文字已经复制到您的剪贴板中\r\n您可以使用Ctrl+v快捷键粘贴到需要的地方");
+	}
+	
+	 var GBKUnicodeConverter={
+			  ToUnicode:function(str){
+			    return escape(str).toLocaleLowerCase().replace(/%u/gi,'\\u');
+			  }
+			  ,ToGBK:function(str){
+			    return unescape(str.replace(/\\u/gi,'%u'));
+			  }
+			};
+	
+	function addItem(i, item) {
+		var dispId = PREFIX_DISP + gDivId;
+		var hideId = PREFIX_HIDE + gDivId;
+		var copyRequestId = PREFIX_COPY_REQUEST + gDivId;
+		var copyResponseId = PREFIX_COPY_RESPONSE + gDivId;
+		gDivId++;
+		var deviceDesc = "终端设备";
+		var array = item.param2.split(',');
+		
+		deviceDesc += "机型:" + array[0];
+		deviceDesc += "&nbsp;&nbsp;安卓版本:" + array[1];
+		deviceDesc += "&nbsp;&nbsp;app版本:" + array[2];
+		deviceDesc += "&nbsp;&nbsp;网络类型:" + getNetworkTypeDesc(array[3]);
+		
+		$("#descDiv").html(deviceDesc);
+		//接受点击的区域，始终显示
+		$("<div id='" + dispId + "' class='title'/>").html("<span class='span_arrow'></span>" + GBKUnicodeConverter.ToGBK(item.param0)).appendTo("#resText");
+		
+		//复制按钮,可以收起来隐藏的区域
+		
+		$("<div id='" + hideId + "' class='request'/>").html(
+				"<input type=\"button\" id=\"" + copyRequestId + "\"  value=\"复制请求\" />" 
+			  + "<span class=\"space_class\"/>" 
+			  + "<input type=\"button\" id=\"" +  copyResponseId + "\"  value=\"复制响应\" />").appendTo("#resText");
+		
+		$("#" +hideId).attr(ATTR_HAS_DETAIL, FALSE);
+		$("#" +hideId).attr(ATTR_DATA_ID, item.param1);
+		
+		//隐藏
+		$("#"+hideId).hide();
+		
+		$("#"+dispId).click(function(){
+			//更新收起展开的按钮
+			var divObj = $(this);
+			var spanObj = divObj.find("span");
+			var newCss = null;
+			if(spanObj.css("background-image").indexOf("expand")>-1){
+				newCss = ARROW_CLOSE;
+			}else{
+				newCss = ARROW_EXPAND;
+			}
+			spanObj.css("background-image",newCss);
+			//将内容收起或展开的逻辑
+			var hideId = divObj.attr("id").replace(PREFIX_DISP,PREFIX_HIDE);
+			//是否已经从后台拉取到详情的标志
+			var hasDetail = $("#" +hideId).attr(ATTR_HAS_DETAIL);
+			
+			//如果已经拉取到了就直接做隐藏或者显示的操作，如果没有拉取到数据就先去拉取
+			if(TRUE==hasDetail){
+				$("#"+hideId).slideToggle("slow");
+			}else{
+				
+				var dataId = $("#" +hideId).attr(ATTR_DATA_ID);
+				var readSingleJceRecordUrl = "readSingleJceRecord?param0=" + dataId;
+				
+				$.getJSON(readSingleJceRecordUrl, function(json) {
+					var rawResult = json.result; //result是和action中定义的result变量的get方法对应的
+					var data = $.parseJSON(rawResult);
+					
+					if (undefined != data.returnCode && 0 == data.returnCode) {
+						if (undefined != data.params && data.params.length > 0) {
+							
+							$("#" +hideId).attr(ATTR_HAS_DETAIL,TRUE);
+							var item = data.params[0];
+							if(undefined!=item){
+								$("<div id='requestContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param8)).appendTo("#"+hideId);
+								$("<div id='responseContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param9)).appendTo("#"+hideId);
+								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param3)).appendTo("#"+hideId);
+								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param4)).appendTo("#"+hideId);
+								$("<div class='split_line'/>").appendTo("#"+hideId);
+								$("<div class='response'/>").html("响应时间:"+item.param5).appendTo("#"+hideId);
+								$("<div class='response'/>").html(GBKUnicodeConverter.ToGBK(item.param6)).appendTo("#"+hideId);
+								$("<div class='split_msg'/>").appendTo("#"+hideId);
+								$("#"+hideId).slideToggle("slow");
+							}
+						}
+					}
+				});
+			}
+		});
+		
+		$("#"+copyRequestId).click(function(){
+			var content = $(this).parent().find("#requestContent").html();
+			put2Clip(content);
+		});
+		
+		$("#"+copyResponseId).click(function(){
+			var content = $(this).parent().find("#responseContent").html();
+			put2Clip(content);
+		});
+	}
+	
+	function doRequest(){
+		$.getJSON(gRequestUrl, function(json) {
+			var rawResult = json.result; //result是和action中定义的result变量的get方法对应的
+			var data = $.parseJSON(rawResult);
+			
+			if (undefined != data.returnCode && 0 == data.returnCode) {
+				if (undefined != data.params && data.params.length > 0) {
+					$.each(data.params, function(i, item) {
+						addItem(i, item);
+					});
+				}
+			}
+		});
+	}
+	
+	var gIntervalHandler;
+	var gRequestUrl;
+	//等待dom元素加载完毕.
+	$(document).ready(function() {
+		$('#send').click(function() {
+			if(32!=$("#guid").val().trim().length){
+				alert('GUID必须为32字节字符串'); 
+				return;
+			}
+			gRequestUrl = url + $("#guid").val();
+			gIntervalHandler = setInterval(doRequest, 2000);
+		});
+		
+		$('#stop_send').click(function() {
+			clearInterval(gIntervalHandler);
+		});
+		
+		$('#gotoBottom').click(function(){
+			$('html,body').animate({scrollTop:$('#bottomDiv').offset().top}, 800);
+		});
+		
+		
+		$('#gotoTop').click(function() {
+			$('html,body').animate({scrollTop:$('#topDiv').offset().top}, 800);
+		});
+
+		$('#clearPage1').click(function() {
+			$("#resText").html("");
+		});
+
+		$('#clearPage2').click(function() {
+			$("#resText").html("");
+		});
+	});
+</script>
+</head>
+<body>
+	<div id="topDiv">
+		请输入GUID&nbsp;<input type="text" id="guid" size="32"/>
+		<span class="space_class"/>
+		<input type="button" id="send" value="启动监控" />
+		<span class="space_class"/>
+		<input type="button" id="stop_send" value="停止监控" />
+		<span class="space_class"/>
+		<input type="button" id="gotoBottom" value="跳到底部" />
+		<span class="space_class"/>
+		<input type="button" id="clearPage1" value="清理页面" />
+	</div>
+	<br/>
+	<div id="descDiv" class="deviceDesc">
+	<br/>
+	
+	</div>
+	<div id="wxInfoDiv" class="deviceDesc">
+	</div>
+	
+	<div id="textParent">
+		<div class='center' id="resText"></div>
+	</div>
+	<br/>
+	<div id="bottomDiv">
+		<input type="button" id="clearPage2" value="清理页面" />
+		<span class="space_class"/>
+		<input type="button" id="gotoTop" value="回到顶部" />
+	</div>
+</body>
+</html>
