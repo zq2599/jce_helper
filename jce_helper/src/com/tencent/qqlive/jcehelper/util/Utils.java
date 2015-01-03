@@ -58,6 +58,12 @@ public class Utils {
 			bean.setParam7(request.getParameter("param7"));
 			bean.setParam8(request.getParameter("param8"));
 			bean.setParam9(request.getParameter("param9"));
+			bean.setParam10(request.getParameter("param10"));
+			bean.setParam11(request.getParameter("param11"));
+			bean.setParam12(request.getParameter("param12"));
+			bean.setParam13(request.getParameter("param13"));
+			bean.setParam14(request.getParameter("param14"));
+			bean.setParam15(request.getParameter("param15"));
 		}
 	
 		return bean;

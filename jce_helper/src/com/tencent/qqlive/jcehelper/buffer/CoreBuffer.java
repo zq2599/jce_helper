@@ -144,7 +144,7 @@ public class CoreBuffer implements CommonBuffer{
 		//标题
 		c.setParam0(buildDesc(cpb));
 		//数据库主键
-		c.setParam1(cpb.getParam8());
+		c.setParam1(cpb.getParam4());
 		//机器信息
 		c.setParam2(cpb.getParam2());
 		//账号信息

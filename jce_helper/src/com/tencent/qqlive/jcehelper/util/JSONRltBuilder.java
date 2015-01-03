@@ -27,6 +27,12 @@ public class JSONRltBuilder {
 		optPut(obj, "param7", param.getParam7());
 		optPut(obj, "param8", param.getParam8());
 		optPut(obj, "param9", param.getParam9());
+		optPut(obj, "param10", param.getParam10());
+		optPut(obj, "param11", param.getParam11());
+		optPut(obj, "param12", param.getParam12());
+		optPut(obj, "param13", param.getParam13());
+		optPut(obj, "param14", param.getParam14());
+		optPut(obj, "param15", param.getParam15());
 		return obj;
 	}
 

@@ -20,6 +20,48 @@ public class CommonParamBean implements Serializable, Cloneable, Comparable<Comm
 	private String param7;
 	private String param8;
 	private String param9;
+	private String param10;
+	private String param11;
+	public String getParam10() {
+		return param10;
+	}
+	public void setParam10(String param10) {
+		this.param10 = param10;
+	}
+	public String getParam11() {
+		return param11;
+	}
+	public void setParam11(String param11) {
+		this.param11 = param11;
+	}
+	public String getParam12() {
+		return param12;
+	}
+	public void setParam12(String param12) {
+		this.param12 = param12;
+	}
+	public String getParam13() {
+		return param13;
+	}
+	public void setParam13(String param13) {
+		this.param13 = param13;
+	}
+	public String getParam14() {
+		return param14;
+	}
+	public void setParam14(String param14) {
+		this.param14 = param14;
+	}
+	public String getParam15() {
+		return param15;
+	}
+	public void setParam15(String param15) {
+		this.param15 = param15;
+	}
+	private String param12;
+	private String param13;
+	private String param14;
+	private String param15;
 	public String getParam7() {
 		return param7;
 	}

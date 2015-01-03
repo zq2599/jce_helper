@@ -180,8 +180,13 @@ padding-left : 10px;
 							$("#" +hideId).attr(ATTR_HAS_DETAIL,TRUE);
 							var item = data.params[0];
 							if(undefined!=item){
-								$("<div id='requestContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param8)).appendTo("#"+hideId);
-								$("<div id='responseContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param9)).appendTo("#"+hideId);
+								$("<div id='requestContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param9)).appendTo("#"+hideId);
+								$("<div id='responseContent' style='display:none;' />").html(GBKUnicodeConverter.ToGBK(item.param10)).appendTo("#"+hideId);
+								
+								$("<div class='request'/>").html("包头").appendTo("#"+hideId);
+								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param8)).appendTo("#"+hideId);
+								$("<div class='split_line'/>").appendTo("#"+hideId);
+								
 								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param3)).appendTo("#"+hideId);
 								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param4)).appendTo("#"+hideId);
 								$("<div class='split_line'/>").appendTo("#"+hideId);

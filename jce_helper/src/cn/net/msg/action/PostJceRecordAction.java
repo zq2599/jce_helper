@@ -88,7 +88,15 @@ public class PostJceRecordAction extends BaseParamAction {
 		entity.setParam7(cpb.getParam7());
 		entity.setParam8(cpb.getParam8());
 		entity.setParam9(cpb.getParam9());
-
+		/*
+		entity.setParam10(cpb.getParam10());
+		entity.setParam11(cpb.getParam11());
+		entity.setParam12(cpb.getParam12());
+		entity.setParam13(cpb.getParam13());
+		entity.setParam14(cpb.getParam14());
+		entity.setParam15(cpb.getParam15());
+		*/
+		
 		return entity;
 	}
 	
@@ -104,11 +112,12 @@ public class PostJceRecordAction extends BaseParamAction {
 		Log.i(TAG, "start doBusiness : " + commonParamBean);
 		JceRecord entity = buildEntity(commonParamBean);
 		jceRecordDao.insertJceRecord(entity);
-		//4,6分别是请求和响应的包体，数据量太大，所以在放入map之前先清除掉
+		//4,6,8分别是请求包体,响应包体，请求包头，数据量太大，所以在放入map之前先清除掉
 		commonParamBean.setParam4(null);
 		commonParamBean.setParam6(null);
-		//数据库记录的id保存在param8字段中
-		commonParamBean.setParam8(String.valueOf(entity.getId()));
+		commonParamBean.setParam8(null);
+		//数据库记录的id保存在param4字段中
+		commonParamBean.setParam4(String.valueOf(entity.getId()));
 		//存入任务队列
 		new Thread(new Runnable() {
 			@Override

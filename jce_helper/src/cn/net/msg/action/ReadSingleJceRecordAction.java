@@ -108,14 +108,20 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 			c.setParam5(buildCommunicateDesc(c.getParam5()));
 		}
 		
-		//param8中放的是gson格式化好的数据，用于用于复制
-		c.setParam8(JSONFormat.jsonFormatter(c.getParam4()));
-		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
-		c.setParam4(JSONFormat.htmlFormat(c.getParam8()));
 		//param9中放的是gson格式化好的数据，用于用于复制
-		c.setParam9(JSONFormat.jsonFormatter(c.getParam6()));
+		c.setParam9(JSONFormat.jsonFormatter(c.getParam4()));
+		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
+		c.setParam4(JSONFormat.htmlFormat(c.getParam9()));
+		
+		//param10中放的是gson格式化好的数据，用于用于复制
+		c.setParam10(JSONFormat.jsonFormatter(c.getParam6()));
 		//param6中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
-		c.setParam6(JSONFormat.htmlFormat(c.getParam9()));
+		c.setParam6(JSONFormat.htmlFormat(c.getParam10()));
+		
+		//param8中是格式化成html格式的json
+		String formatParam8 = JSONFormat.jsonFormatter(c.getParam8());
+		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
+		c.setParam8(JSONFormat.htmlFormat(formatParam8));
 	}
 
 }
