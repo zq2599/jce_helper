@@ -15,8 +15,11 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface PluginInfomation {
-	String creator() default "未知用户";
-	String desc() default "未知用途";
-	String version() default "0.01";
-	String path() default "";
+	String creator();
+	String desc();
+	String version();
+	PluginDataSource source();
+	PluginDataType type();
+	String jces();
+	String path();
 }

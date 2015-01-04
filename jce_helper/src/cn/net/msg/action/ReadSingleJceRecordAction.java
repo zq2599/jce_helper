@@ -9,6 +9,7 @@ import org.apache.struts2.json.annotations.JSON;
 
 import cn.net.msg.dao.IJecRecordDao;
 import cn.net.msg.model.JceRecord;
+import cn.net.msg.plugin.PluginManager;
 
 import com.tencent.qqlive.jcehelper.bean.CommonListRltBean;
 import com.tencent.qqlive.jcehelper.bean.CommonParamBean;
@@ -100,6 +101,7 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 			Log.i(TAG, "invalide cpb for convert");
 			return;
 		}
+		PluginManager pm = PluginManager.getInstance();
 		
 		if(Utils.isValid(c.getParam3())){
 			c.setParam3(buildCommunicateDesc(c.getParam3()));
@@ -119,7 +121,8 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 		c.setParam6(JSONFormat.htmlFormat(c.getParam10()));
 		
 		//param8中是格式化成html格式的json
-		String formatParam8 = JSONFormat.jsonFormatter(c.getParam8());
+		String pluginHeader = pm.doHeaderConvert(c.getParam8());
+		String formatParam8 = JSONFormat.jsonFormatter(pluginHeader);
 		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
 		c.setParam8(JSONFormat.htmlFormat(formatParam8));
 	}
