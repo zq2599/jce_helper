@@ -9,6 +9,7 @@ import cn.net.msg.plugin.annotation.PluginDataType;
  *
  */
 public class PluginInfo {
+	public Class c;
 	public String creator;
 	public String desc;
 	public String version;

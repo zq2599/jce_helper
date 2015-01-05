@@ -17,7 +17,7 @@ import cn.net.msg.plugin.annotation.PluginInfomation;
 		creator = "willzhao", 
 		desc = "包头命令字转成十六进制和十进制两种表述", 
 		jces = "", 
-		path = "F(cmdId)", 
+		path = "field(cmdId)", 
 		source = PluginDataSource.header, 
 		type = PluginDataType.type_int, 
 		version = "0.01"
@@ -26,7 +26,13 @@ public class HeadCmdDesc implements IPlugin {
 
 	@Override
 	public Object buildObject(Object rawObject) throws Exception {
-		return null;
+		String rlt = null;
+		if(null!=rawObject && rawObject instanceof Integer){
+			int cmd = (Integer)rawObject;
+			rlt = String.format("0x%x (%d)",cmd,cmd);
+		}
+		
+		return rlt;
 	}
 
 }

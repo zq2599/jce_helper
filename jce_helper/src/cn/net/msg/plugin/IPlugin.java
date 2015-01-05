@@ -1,6 +1,5 @@
 package cn.net.msg.plugin;
 
-import org.json.JSONObject;
 
 /**
  * 所有插件必须实现的接口
