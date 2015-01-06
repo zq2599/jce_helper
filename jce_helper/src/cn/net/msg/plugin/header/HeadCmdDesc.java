@@ -19,7 +19,7 @@ import cn.net.msg.plugin.annotation.PluginInfomation;
 		jces = "", 
 		path = "field(cmdId)", 
 		source = PluginDataSource.header, 
-		type = PluginDataType.type_int, 
+		type = PluginDataType.data_type_int, 
 		version = "0.01"
 )
 public class HeadCmdDesc implements IPlugin {

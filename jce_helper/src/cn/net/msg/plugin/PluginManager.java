@@ -6,20 +6,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.omg.CORBA.FieldNameHelper;
 
 import com.google.gson.JsonObject;
 import com.tencent.qqlive.jcehelper.util.Log;
+
+import cn.net.msg.plugin.annotation.PluginDataSource;
 import cn.net.msg.plugin.annotation.PluginInfomation;
 import cn.net.msg.plugin.header.HeadCmdDesc;
+import cn.net.msg.plugin.header.HeadPlatformDesc;
+import cn.net.msg.plugin.response.ChannelDataResponseItem;
+import cn.net.msg.plugin.response.EONAViewTypeDesc;
 
 public class PluginManager {
 	private final static String TAG = "PluginManager";
 	
-	private Class[] PLUGIN_ARRAY_HEADER = {HeadCmdDesc.class};
+	private Class[] PLUGIN_ARRAY_HEADER = {HeadCmdDesc.class,HeadPlatformDesc.class};
 	private Class[] PLUGIN_ARRAY_REQUEST = {};
-	private Class[] PLUGIN_ARRAY_RESPONSE = {};
+	private Class[] PLUGIN_ARRAY_RESPONSE = {EONAViewTypeDesc.class, ChannelDataResponseItem.class};
 	
 	private Map<String, PluginInfo> mHeaderMap = new HashMap<String, PluginInfo>();
 	private Map<String, PluginInfo> mRequestMap = new HashMap<String, PluginInfo>();
@@ -84,6 +90,7 @@ public class PluginManager {
 		type_unknown,
 		type_field,
 		type_object,
+		type_array,
 	} 
 	
 	private static class PathInfo{
@@ -96,6 +103,8 @@ public class PluginManager {
 		NodeType rlt = NodeType.type_unknown;
 		if("field".equals(raw)){
 			rlt = NodeType.type_field;
+		}else if("array".equals(raw)){
+			rlt = NodeType.type_array;
 		}
 		
 		return rlt;
@@ -120,9 +129,10 @@ public class PluginManager {
 	}
 	
 	public static void main(String[] args){
-		String raw = "{\"appId\": \"1000005\",\"requestId\": 4,\"cmdId\": 59605}";
+		//String raw = "{\"appId\": \"1000005\",\"requestId\": 4,\"cmdId\": 59605}";
+		String raw = "{\"pageContext\": \"page=2\",\"hasNextPage\": true,\"errCode\": 0,\"data\": [{\"groupId\": \"20140827046920\",\"item\": {\"itemType\": 3,\"data\": [6,0,28]},\"lineId\": \"\"}]}";
 		
-		PluginManager.getInstance().doHeaderConvert(raw);
+		System.out.println(PluginManager.getInstance().doConvert(PluginDataSource.response, raw));
 	}
 	
 	/**
@@ -130,13 +140,18 @@ public class PluginManager {
 	 * @param rawObject
 	 * @param info
 	 */
-	private void doSinglePlugin(JSONObject rawObject, PluginInfo info){
-		List<PathInfo> pathInfos = buildPathInfos(info.path);
+	private void doSinglePlugin(JSONObject rawObject, PluginInfo info, List<PathInfo> pathInfos){
+		//List<PathInfo> pathInfos = buildPathInfos(info.path);
 		JSONObject lastObj = rawObject;
 		
 		if(null!=pathInfos && !pathInfos.isEmpty()){
 			int size = pathInfos.size();
+			boolean isContinue = true;
 			for(int i=0;i<size;i++){
+				//如果不需要继续处理，就会提前将isContinue标志设置为false，此处就会自动退出
+				if(!isContinue){
+					break;
+				}
 				PathInfo pInfo = pathInfos.get(i);
 				if(null==pInfo){
 					Log.e(TAG, "invalid pathInfo");
@@ -149,14 +164,17 @@ public class PluginManager {
 					if(i>=(size-1)){
 						Object dataObj = null;
 						switch(info.type){
-						case type_str:
+						case data_type_str:
 							dataObj = lastObj.optString(pInfo.fieldName);
 						break;
-						case type_int:
+						case data_type_int:
 							dataObj = lastObj.optInt(pInfo.fieldName);
 						break;
-						case type_long:
+						case data_type_long:
 							dataObj = lastObj.optLong(pInfo.fieldName);
+						break;
+						case data_type_array:
+							dataObj = lastObj.optJSONArray(pInfo.fieldName);
 						break;
 						}
 						
@@ -174,12 +192,31 @@ public class PluginManager {
 						lastObj = lastObj.optJSONObject(pInfo.fieldName);
 					}
 				break;
+				
+				case type_array : 
+					isContinue = false;
+					try{
+						//取出该数组中的所有数据，然后逐一处理，通过迭代的方式继续处理每个节点
+						JSONArray jsonArray = lastObj.getJSONArray(pInfo.fieldName);
+						if(null!=jsonArray && jsonArray.length()>0){
+							for(int j=0;j<jsonArray.length();j++){
+								JSONObject subObject = jsonArray.getJSONObject(j);
+								List<PathInfo> subList = new ArrayList<PathInfo>(); 
+								subList.addAll(pathInfos.subList(i+1,size));
+								doSinglePlugin(subObject, info, subList);
+							}
+						}
+					}catch(Exception e){
+						Log.e(TAG, "doSinglePlugin error : " + e);
+					}
+				break;
+				
 				}
 			}
 		}
 	} 
 	
-	public String doHeaderConvert(String raw){
+	public String doConvert(PluginDataSource source, String raw){
 		String rlt = null;
 		
 		JSONObject rawObject = null;
@@ -190,18 +227,31 @@ public class PluginManager {
 		}
 		
 		if(null!=rawObject){
-			Iterator<Map.Entry<String, PluginInfo>> it = mHeaderMap.entrySet().iterator();
+			Map<String, PluginInfo> map = null;
+			switch(source){
+			case header:
+				map = mHeaderMap;
+				break;
+			case request:
+				map = mRequestMap;
+				break;
+			case response:
+				map = mResponseMap;
+				break;
+			}
+			Iterator<Map.Entry<String, PluginInfo>> it = map.entrySet().iterator();
 			while (it.hasNext()) {
 				Map.Entry<String, PluginInfo> entry = (Map.Entry<String, PluginInfo>)it.next();
 				String key = entry.getKey();
 				PluginInfo info = entry.getValue();
 				Log.e(TAG, "try plugin, key : " + key + ", value : " + info);
-				doSinglePlugin(rawObject, info);
+				List<PathInfo> pathInfos = buildPathInfos(info.path);
+				doSinglePlugin(rawObject, info, pathInfos);
 			}
 			rlt = rawObject.toString();
 		}
 		
-		return rlt;
+		return null==rlt ? raw : rlt;
 	}
 	
 }
