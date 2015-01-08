@@ -17,13 +17,15 @@ import cn.net.msg.plugin.annotation.PluginDataSource;
 import cn.net.msg.plugin.annotation.PluginInfomation;
 import cn.net.msg.plugin.header.HeadCmdDesc;
 import cn.net.msg.plugin.header.HeadPlatformDesc;
+import cn.net.msg.plugin.header.HeadTokenFormat;
+import cn.net.msg.plugin.header.HeadTokenKeyTypeDesc;
 import cn.net.msg.plugin.response.ChannelDataResponseItem;
 import cn.net.msg.plugin.response.EONAViewTypeDesc;
 
 public class PluginManager {
 	private final static String TAG = "PluginManager";
 	
-	private Class[] PLUGIN_ARRAY_HEADER = {HeadCmdDesc.class,HeadPlatformDesc.class};
+	private Class[] PLUGIN_ARRAY_HEADER = {HeadCmdDesc.class,HeadPlatformDesc.class,HeadTokenFormat.class,HeadTokenKeyTypeDesc.class};
 	private Class[] PLUGIN_ARRAY_REQUEST = {};
 	private Class[] PLUGIN_ARRAY_RESPONSE = {EONAViewTypeDesc.class, ChannelDataResponseItem.class};
 	
@@ -130,9 +132,10 @@ public class PluginManager {
 	
 	public static void main(String[] args){
 		//String raw = "{\"appId\": \"1000005\",\"requestId\": 4,\"cmdId\": 59605}";
-		String raw = "{\"pageContext\": \"page=2\",\"hasNextPage\": true,\"errCode\": 0,\"data\": [{\"groupId\": \"20140827046920\",\"item\": {\"itemType\": 3,\"data\": [6,0,28]},\"lineId\": \"\"}]}";
+		//String raw = "{\"pageContext\": \"page=2\",\"hasNextPage\": true,\"errCode\": 0,\"data\": [{\"groupId\": \"20140827046920\",\"item\": {\"itemType\": 3,\"data\": [6,0,28]},\"lineId\": \"\"}]}";
+		String raw = "{\"token\": [{\"IsMainLogin\": true,\"TokenAppID\": \"wxca942bbff22e0e51\",\"TokenValue\": [79,101,122,88,99,69,105,105,66,83,75,83,120,87,48,101,111,121,108,73,101,69,106,50,67,69,79,109,66,90,120,103,49,65,119,82,112,71,115,77,72,71,119,49,78,97,82,90,84,101,104,85,65,67,75,104,108,53,45,98,56,71,104,51,76,116,85,49,54,71,83,48,112,101,81,116,69,76,52,100,85,98,78,73,74,51,104,73,97,65,45,84,84,110,109,67,79,112,120,79,95,108,111,78,69,74,73,68,78,121,85,121,106,45,101,45,68,114,67,70,84,82,57,77,97,119,54,107,114,98,78,98,99,50,51,107,82,105,76,105,68,86,54,53,111,75,120,70,52,81],\"TokenKeyType\": 100,\"TokenUin\": \"oQFqrjgKH50yNLm3ttqsgxIhCbXw\"}]}";
 		
-		System.out.println(PluginManager.getInstance().doConvert(PluginDataSource.response, raw));
+		System.out.println(PluginManager.getInstance().doConvert(PluginDataSource.header, raw));
 	}
 	
 	/**
@@ -150,6 +153,9 @@ public class PluginManager {
 			for(int i=0;i<size;i++){
 				//如果不需要继续处理，就会提前将isContinue标志设置为false，此处就会自动退出
 				if(!isContinue){
+					break;
+				}
+				if(null==lastObj){
 					break;
 				}
 				PathInfo pInfo = pathInfos.get(i);
@@ -195,19 +201,21 @@ public class PluginManager {
 				
 				case type_array : 
 					isContinue = false;
-					try{
-						//取出该数组中的所有数据，然后逐一处理，通过迭代的方式继续处理每个节点
-						JSONArray jsonArray = lastObj.getJSONArray(pInfo.fieldName);
-						if(null!=jsonArray && jsonArray.length()>0){
-							for(int j=0;j<jsonArray.length();j++){
-								JSONObject subObject = jsonArray.getJSONObject(j);
-								List<PathInfo> subList = new ArrayList<PathInfo>(); 
-								subList.addAll(pathInfos.subList(i+1,size));
-								doSinglePlugin(subObject, info, subList);
+					if(lastObj.has(pInfo.fieldName)){
+						try{
+							//取出该数组中的所有数据，然后逐一处理，通过迭代的方式继续处理每个节点
+							JSONArray jsonArray = lastObj.getJSONArray(pInfo.fieldName);
+							if(null!=jsonArray && jsonArray.length()>0){
+								for(int j=0;j<jsonArray.length();j++){
+									JSONObject subObject = jsonArray.getJSONObject(j);
+									List<PathInfo> subList = new ArrayList<PathInfo>(); 
+									subList.addAll(pathInfos.subList(i+1,size));
+									doSinglePlugin(subObject, info, subList);
+								}
 							}
+						}catch(Exception e){
+							Log.e(TAG, "doSinglePlugin error : " + e);
 						}
-					}catch(Exception e){
-						Log.e(TAG, "doSinglePlugin error : " + e);
 					}
 				break;
 				

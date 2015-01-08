@@ -59,9 +59,18 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 	protected void doBusiness(CommonParamBean commonParamBean) {
 		Log.i(TAG, "start doBusiness");
 		JceRecord jceRecord = null;
-		if(null!=commonParamBean && Utils.isValidLong(commonParamBean.getParam0())){
-			jceRecord = jceRecordDao.findById(Long.valueOf(commonParamBean.getParam0()));
+		boolean isUsePlugin = false;
+		if(null!=commonParamBean){
+			if(Utils.isValidLong(commonParamBean.getParam0())){
+				jceRecord = jceRecordDao.findById(Long.valueOf(commonParamBean.getParam0()));
+			}
+			
+			if(!Utils.isEmpty(commonParamBean.getParam1()) && "1".equals(commonParamBean.getParam1())){
+				isUsePlugin = true;
+			}
 		}
+		
+		
 		
 		CommonListRltBean rlt = new CommonListRltBean();
 		rlt.setReturnCode(0);
@@ -71,7 +80,7 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 			List<CommonParamBean> list = new ArrayList<CommonParamBean>();
 			CommonParamBean resultCpb = entity2CommonParamBean(jceRecord);
 			//按照页面的要求来设置数据内容
-			doConvert(resultCpb);
+			doConvert(resultCpb, isUsePlugin);
 			list.add(resultCpb);
 			rlt.setParams(list);
 		}
@@ -97,7 +106,7 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 		return sbud.toString();
 	}
 	
-	private void doConvert(CommonParamBean c){
+	private void doConvert(CommonParamBean c, boolean isUsePlugin){
 		if(null==c){
 			Log.i(TAG, "invalide cpb for convert");
 			return;
@@ -114,19 +123,19 @@ public class ReadSingleJceRecordAction extends BaseParamAction {
 		//param9中放的是gson格式化好的数据，用于用于复制
 		c.setParam9(JSONFormat.jsonFormatter(c.getParam4()));
 		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
-		String pluginRequest = pm.doConvert(PluginDataSource.request, c.getParam4());
+		String pluginRequest = isUsePlugin ? pm.doConvert(PluginDataSource.request, c.getParam4()) : c.getParam4();
 		pluginRequest = JSONFormat.jsonFormatter(pluginRequest);
 		c.setParam4(JSONFormat.htmlFormat(pluginRequest));
 		
 		//param10中放的是gson格式化好的数据，用于用于复制
 		c.setParam10(JSONFormat.jsonFormatter(c.getParam6()));
 		//param6中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
-		String pluginResponse = pm.doConvert(PluginDataSource.response, c.getParam10());
+		String pluginResponse = isUsePlugin ? pm.doConvert(PluginDataSource.response, c.getParam10()) : c.getParam10();
 		pluginResponse = JSONFormat.jsonFormatter(pluginResponse);
 		c.setParam6(JSONFormat.htmlFormat(pluginResponse));
 		
 		//param8中是格式化成html格式的json
-		String pluginHeader = pm.doConvert(PluginDataSource.header, c.getParam8());
+		String pluginHeader = isUsePlugin ? pm.doConvert(PluginDataSource.header, c.getParam8()) : c.getParam8();
 		String formatParam8 = JSONFormat.jsonFormatter(pluginHeader);
 		//param4中放的是gson格式化之后，再把换行和空格换成html标签的数据，用于网页上显示
 		c.setParam8(JSONFormat.htmlFormat(formatParam8));
