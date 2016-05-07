@@ -81,7 +81,7 @@ public class UserAction extends ActionSupport{
 	 * 校验更新数据的操作
 	 */
 	public void validateUpdate(){
-		if(100000>user.getId())
+		if(1>user.getId())
 			this.addFieldError("id", "value of id is unvalid");
 		
 		if(null==user.getName()||"".equals(user.getName().trim())) 

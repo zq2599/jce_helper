@@ -1,5 +1,5 @@
 
-var G_URL_PREFIX = "/jce_helper/";
+
 /*
  * 这是处理delete点击事件的函数
  * 获取id的值，然后根据id执行删除操作

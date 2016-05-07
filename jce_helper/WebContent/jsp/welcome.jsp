@@ -11,6 +11,12 @@
     <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
     <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap-responsive.css" rel="stylesheet">
   	<script type="text/javascript" src="${pageContext.request.contextPath }/js/jquery.min.js"></script>
+  	
+  	<script type="text/javascript">
+  		var G_URL_PREFIX = "${pageContext.request.contextPath }" + "/";
+	</script>
+	
+	
   	<script type="text/javascript" src="${pageContext.request.contextPath }/js/demo.js"></script>  
   </head>
 
