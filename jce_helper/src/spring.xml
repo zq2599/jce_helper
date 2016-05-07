@@ -21,11 +21,15 @@
 		<property name="username" value="yo45xmk2yw"/>
 		<property name="password" value="515k5lj0imx11lihjzh0j31yh0i2l31iwl5mmllw"/>
 		-->
-		
+		<!--
 		<property name="url" value="jdbc:mysql://127.0.0.1:3306/test?useUnicode=true&amp;characterEncoding=UTF-8"/> 
 		<property name="username" value="root"/>
 		<property name="password" value=""/>
+		-->
 		
+		<property name="url" value="jdbc:mysql://w.rdc.sae.sina.com.cn:3307/app_wenba"/> 
+		<property name="username" value="oj555wx2wz"/>
+		<property name="password" value="i2515l3ijzm5k1zi540i4wmm5x202i1m4wx2m5yj"/>
 		
 		<!--
 		<property name="url" value="jdbc:mysql://w.rdc.sae.sina.com.cn:3307/app_jcehelper"/> 
