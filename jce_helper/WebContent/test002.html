@@ -166,9 +166,9 @@ padding-left : 10px;
 			if(TRUE==hasDetail){
 				$("#"+hideId).slideToggle("slow");
 			}else{
-				
+				var isUsePlugin = $("#usePlugin").attr("checked")=="checked" ? "1" : "0";
 				var dataId = $("#" +hideId).attr(ATTR_DATA_ID);
-				var readSingleJceRecordUrl = "readSingleJceRecord?param0=" + dataId;
+				var readSingleJceRecordUrl = "readSingleJceRecord?param0=" + dataId + "&param1=" + isUsePlugin;
 				
 				$.getJSON(readSingleJceRecordUrl, function(json) {
 					var rawResult = json.result; //result是和action中定义的result变量的get方法对应的
@@ -187,10 +187,10 @@ padding-left : 10px;
 								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param8)).appendTo("#"+hideId);
 								$("<div class='split_line'/>").appendTo("#"+hideId);
 								
-								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param3)).appendTo("#"+hideId);
+								$("<div class='request'/>").html("请求"+ GBKUnicodeConverter.ToGBK(item.param3)).appendTo("#"+hideId);
 								$("<div class='request'/>").html(GBKUnicodeConverter.ToGBK(item.param4)).appendTo("#"+hideId);
 								$("<div class='split_line'/>").appendTo("#"+hideId);
-								$("<div class='response'/>").html("响应时间:"+item.param5).appendTo("#"+hideId);
+								$("<div class='response'/>").html("响应"+item.param5).appendTo("#"+hideId);
 								$("<div class='response'/>").html(GBKUnicodeConverter.ToGBK(item.param6)).appendTo("#"+hideId);
 								$("<div class='split_msg'/>").appendTo("#"+hideId);
 								$("#"+hideId).slideToggle("slow");
@@ -274,6 +274,8 @@ padding-left : 10px;
 		<input type="button" id="gotoBottom" value="跳到底部" />
 		<span class="space_class"/>
 		<input type="button" id="clearPage1" value="清理页面" />
+		<span class="space_class"/>
+		<input type="checkbox" id="usePlugin" checked="checked">启用插件</input>
 	</div>
 	<br/>
 	<div id="descDiv" class="deviceDesc">
