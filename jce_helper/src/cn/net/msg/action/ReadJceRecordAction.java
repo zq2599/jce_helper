@@ -8,8 +8,10 @@ import javax.annotation.Resource;
 import org.apache.struts2.json.annotations.JSON;
 
 import cn.net.msg.dao.IJecRecordDao;
+import cn.net.msg.dao.IWenbaAnswerDao;
 import cn.net.msg.dao.IWenbaQuestionDao;
 import cn.net.msg.dao.IWenbaUserDao;
+import cn.net.msg.model.WenbaAnswer;
 import cn.net.msg.model.WenbaQuestion;
 import cn.net.msg.model.WenbaUser;
 
@@ -41,6 +43,9 @@ public class ReadJceRecordAction extends BaseParamAction {
 	
 	@Resource(name="wenbaQuestionDao")
 	IWenbaQuestionDao wenbaQuestionDao;
+	
+	@Resource(name="wenbaAnswerDao")
+	IWenbaAnswerDao wenbaAnswerDao;
 
 	/*
 	@Override
@@ -85,6 +90,15 @@ public class ReadJceRecordAction extends BaseParamAction {
 				WenbaQuestion question = questions.get(0);
 				if(null!=question){
 					msg.append("question title [" + question.getQuestionTitle() + "], ");
+					
+					List<WenbaAnswer> answers = wenbaAnswerDao.findByQuestionId(question.getId());
+					if(null==answers || answers.isEmpty()){
+						msg.append("no answer");
+					}else{
+						msg.append("answer size [" + answers.size() + "]");
+						WenbaAnswer answer = answers.get(0);
+						msg.append("first answer's digest [" + answer.getAnswerDigest() + "]");
+					}
 				}
 			}else{
 				msg.append("question is empty, ");
