@@ -44,6 +44,15 @@
 		<action name="readSingleJceRecord" class="cn.net.msg.action.ReadSingleJceRecordAction">
 			<result type="json"></result>
 		</action>
+		<!-- wenba -->
+		<!-- 根据账号查询所有问题 -->
+		<action name="getQuestionsByAccount" class="cn.net.msg.action.GetQuestionsByAccountAction">
+			<result type="json"></result>
+		</action>
+		<!-- 发表一个问题 -->
+		<action name="addQuestions" class="cn.net.msg.action.AddQuestionAction">
+			<result type="json"></result>
+		</action>
 </package>
 
 

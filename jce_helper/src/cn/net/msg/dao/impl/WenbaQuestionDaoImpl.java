@@ -20,4 +20,9 @@ public class WenbaQuestionDaoImpl implements IWenbaQuestionDao {
 		List<WenbaQuestion> list=template.find("from WenbaQuestion u where u.creatorId=?", creator);  
 		return list;
 	}
+
+	@Override
+	public void insert(WenbaQuestion wenbaQuestion) {
+		template.save(wenbaQuestion);
+	}
 }
